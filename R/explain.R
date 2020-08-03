@@ -19,6 +19,7 @@
 #' This will happen also if \code{verbose} is TRUE. Set both \code{verbose} and \code{precalculate} to FALSE to omit calculations.
 #' @param colorize logical. If TRUE (default) then \code{WARNINGS}, \code{ERRORS} and \code{NOTES} are colorized. Will work only in the R console.
 #' @param model_info a named list (\code{package}, \code{version}, \code{type}) containg information about model. If \code{NULL}, \code{DALEX} will seek for information on it's own.
+#' @param positive_class a character indicating by name which class should be treated as positive for binary classification (ie. which class should be associated with 1 value)
 #' @param type type of a model, either \code{classification} or \code{regression}. If not specified then \code{type} will be extracted from \code{model_info}.
 #'
 #' @return An object of the class \code{explainer}.
@@ -120,7 +121,7 @@
 explain.default <- function(model, data = NULL, y = NULL, predict_function = NULL,
                             residual_function = NULL, weights = NULL, ...,
                             label = NULL, verbose = TRUE, precalculate = TRUE,
-                            colorize = TRUE, model_info = NULL, type = NULL) {
+                            colorize = TRUE, model_info = NULL, positive_class = NULL, type = NULL) {
 
   verbose_cat("Preparation of a new explainer is initiated\n", verbose = verbose)
 
@@ -278,6 +279,10 @@ explain.default <- function(model, data = NULL, y = NULL, predict_function = NUL
   if (!is.null(type)) {
     model_info$type <- type
     verbose_cat("  -> model_info        :  type set to ", type, "\n", verbose = verbose)
+  }
+
+  if (model_info$type == "classification" & !is.null(positive_class)) {
+    attr(model, "positive_class") <- positive_class
   }
 
   # REPORT: checks for residual_function

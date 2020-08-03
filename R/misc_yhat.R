@@ -46,8 +46,13 @@ yhat.randomForest <- function(X.model, newdata, ...) {
     # if result is a vector then ncol parameter is null
     if (is.null(ncol(pred))) return(pred)
     #  binary classification
-    if (ncol(pred) == 2) return(pred[,2])
-
+    if (ncol(pred) == 2) {
+      if (!is.null(attr(X.model, "positive_class"))){
+        return(unlist(pred[attr(X.model, "positive_class")], use.names = FALSE))
+      } else {
+        return(pred[,2])
+      }
+    }
   } else {
     pred <- predict(X.model, newdata, ...)
   }
@@ -60,7 +65,11 @@ yhat.svm <- function(X.model, newdata, ...) {
   if (X.model$type == 0) {
     pred <- attr(predict(X.model, newdata = newdata, probability = TRUE), "probabilities")
     if (ncol(pred) == 2) { # binary classification
-      pred <- pred[,2]
+      if (!is.null(attr(X.model, "positive_class"))) {
+        pred <- pred[,attr(X.model, "positive_class")]
+      } else {
+        pred <- pred[,2]
+      }
     }
   } else {
     pred <- predict(X.model, newdata, ...)
